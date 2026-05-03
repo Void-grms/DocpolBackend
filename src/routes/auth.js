@@ -58,6 +58,21 @@ router.post('/login', async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
+// GET /api/auth/seed - Ejecutar script de seed manualmente
+router.get('/seed', (req, res, next) => {
+  const { exec } = require('child_process');
+  const path = require('path');
+  const seedScript = path.join(__dirname, '../../prisma/seed.js');
+  
+  exec(`node ${seedScript}`, (error, stdout, stderr) => {
+    if (error) {
+      console.error(`Error de ejecución: ${error.message}`);
+      return res.status(500).json({ error: error.message, stderr });
+    }
+    res.json({ message: 'Seed ejecutado correctamente', stdout });
+  });
+});
+
 // GET /api/auth/me — Perfil del usuario autenticado
 const { verificarToken } = require('../middleware/auth');
 router.get('/me', verificarToken, async (req, res, next) => {
